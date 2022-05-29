@@ -16,6 +16,8 @@ const authenticate = async (socket, {publicKey}, callback)=>{
 
     socket.publicKey = publicKey;
 
+    console.log(`[!] User ${socket.id} authenticated.`);
+
     return callback(null, true);
 };
 
@@ -40,6 +42,8 @@ const sendMessage = async (socket, {recievingPublicKey, message}, callback)=>{
     //send message to user
     socket.to(user.socketId).emit('message', messageObj);
 
+    console.log(`[!] User ${socket.id} sent message to ${user.socketId}`);
+
     return callback(null, messageObj);
 };
 
@@ -49,6 +53,8 @@ const disconnect = async (socket)=>{
     if(existing){ 
         await User.findOneAndRemove({socketId: socket.id});
     }
+
+    console.log(`[!] User ${socket.id} disconnected.`);
 };
 
 module.exports = {

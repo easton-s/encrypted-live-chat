@@ -4,40 +4,17 @@
 
 .main {
   min-height: 100vh;
-  padding: 4rem 0;
+  padding: 2rem 0;
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.title a {
-  color: #0070f3;
-  text-decoration: none;
-}
-
-.title a:hover,
-.title a:focus,
-.title a:active {
-  text-decoration: underline;
-}
-
 .title {
   margin: 0;
-  line-height: 1.15;
-  font-size: 3.2rem;
-  margin-bottom: 30px;
-}
-
-.title,
-.description {
-  text-align: center;
-}
-
-.description {
-  margin: 4rem 0;
-  line-height: 1.5;
-  font-size: 1.5rem;
+  font-size: 2rem;
+  margin-bottom: 10px;
 }
 
 .grid {
@@ -121,9 +98,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 10px;
   width: 100%;
-  padding: 0 20px;
+  padding: 0 12.5px 0 20px;
   border-bottom: 2px solid #7e7e7e;
 }
 
@@ -151,6 +127,32 @@
 }
 .sidebarContacts::-webkit-scrollbar {
   display: none;
+}
+
+.sidebarContact{
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  margin-bottom: 10px;
+  width: 100%;
+  max-width: 100%;
+  padding: 10px 20px;
+  border-bottom: 2px solid #7e7e7e;
+  cursor: pointer;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.sidebarContact span{
+  flex-grow: 1;
+  font-size: 1rem;
+  text-overflow: clip;
+}
+.sidebarContact small{
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #0070f3;
+  margin-left: 5px;
 }
 
 .chatBody{
@@ -182,4 +184,34 @@
   flex-grow: 1;
   display: flex;
   align-items: center;
+}
+
+.messageContainer{
+  flex-grow: 1;
+}
+
+.chatFooter{
+  width: 100%;
+  display: flex;
+  align-items: center;
+  border-top: 2px solid #7e7e7e;
+}
+
+.chatFooter input{
+  flex-grow: 1;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  border: none;
+}
+
+.chatFooter button{
+  width: 35px;
+  height: 35px;
+  background-color: #0070f3;
+  border: none;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 1.5rem;
+  margin-right: 3px;
+  cursor: pointer;
 }

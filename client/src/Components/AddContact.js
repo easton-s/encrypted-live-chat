@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
+import { useDispatch, connect } from 'react-redux';
 
-import {encryptMessage} from '../utils/pgp.util';
+import { setContactModal, addContact as setContactState } from '../store/actions';
 
 import styles from '../styles/Modal.module.css';
 
-const AddContact = ({ open, setOpen, socket, publicKey, toast, setChat })=>{
+const AddContact = ({ open })=>{
+    const dispatch = useDispatch();
+
     const [openModal, setOpenModal] = useState(open);
 
     useEffect(()=>setOpenModal(open), [open]);
@@ -12,47 +15,15 @@ const AddContact = ({ open, setOpen, socket, publicKey, toast, setChat })=>{
     const [contact, setContact] = useState({ username: '', publicKey: '' });
 
     const closeModal = ()=>{
-        setOpen({ open: false });
-    };
-
-    const modifyChat = (username, publicKey)=>{
-        console.log(username, publicKey);
-
-        setChat(chat => ({
-            ...chat,
-            [username]: {
-                publicKey: publicKey,
-                messages: [],
-            }
-        }));
+        dispatch(setContactModal({ open: false }));
     };
 
     const addContact = async ()=>{
-        if(!contact.publicKey || contact.publicKey.length < 1){
-            return toast.error('Please enter a public key.');
-        }
-        if(!contact.username || contact.username.length < 1){
-            return toast.error('Please enter a username.');
-        }
+        await dispatch(setContactState(contact));
 
-        console.log(contact);
-
-        let encryptedMessage = await encryptMessage(publicKey, 'Connecting chat...');
-        console.log(encryptedMessage);
-
-        socket.emit('send_message', { recievingPublicKey: contact.publicKey, message: encryptedMessage }, (err, data)=>{
-            if(err){
-                if(err === 4) toast.error('User is not connected to the server.');
-                return;
-            }
-            console.log(data);
-            modifyChat(contact.username, contact.publicKey);
-
-            setContact({ username: '', publicKey: '' });
-            setOpen({ open: false });
-            toast.success('Contact successfully added.');
-        });
-    }
+        setContact({ username: '', publicKey: '' });
+        closeModal();
+    };
 
     return (
         <div className={styles.container} style={{
@@ -92,4 +63,8 @@ const AddContact = ({ open, setOpen, socket, publicKey, toast, setChat })=>{
     );
 };
 
-export default AddContact;
+const mapStateToProps = state => ({
+    open: state.contactModal.open,
+});
+
+export default connect(mapStateToProps)(AddContact);

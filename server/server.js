@@ -15,8 +15,7 @@ server.listen(process.env.PORT || 8080, () => console.log('[!] HTTP Web server i
 //startup socketio stuff
 const io = require('socket.io')(server, {
     cors: {
-        origin: "http://localhost:3000",
-        methods: ["GET", "POST"]
+        origin: "http://localhost:3000"
     }
 });
 

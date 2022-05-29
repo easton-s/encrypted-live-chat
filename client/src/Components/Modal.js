@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
+import { useDispatch, connect } from 'react-redux';
 
+import { setKeypair as setKeypairState, setModal } from '../store/actions';
 import {generateKeypair} from '../utils/pgp.util';
 
 import styles from '../styles/Modal.module.css';
 
-const Modal = ({ open, setOpen, generateNew, setParentKeys, toast })=>{
+const Modal = ({ open, generateNew, toast })=>{
+    const dispatch = useDispatch();
+
     const [openModal, setOpenModal] = useState(open);
 
     const [keypair, setKeypair] = useState({ publicKey: null, privateKey: null, passphrase: null, username: null, save: false });
@@ -27,16 +31,11 @@ const Modal = ({ open, setOpen, generateNew, setParentKeys, toast })=>{
         save: false,
     });
 
-    /*
-    on generation:
-    set passphrase, username, choose to save to localstorage
+    const closeModal = ()=>{
+        dispatch(setModal({ open: false }));
+    };
 
-    on load:
-    2 large text boxes for pub and priv, choose to save to localstorage
-
-    figure out how to get userids from keypair
-    */
-    // generate new keypair
+    //generate new PGP keypair
     const generate = async ()=>{
         if(!generateForm.passphrase || generateForm.passphrase.length < 1){
             return toast.error('Please enter a passphrase.');
@@ -45,19 +44,19 @@ const Modal = ({ open, setOpen, generateNew, setParentKeys, toast })=>{
             return toast.error('Please enter a username.');
         }
 
-        let { privateKey, publicKey, passphrase, username } = await generateKeypair(generateForm);
+        let keyData = await generateKeypair(generateForm);
 
-        setParentKeys({ privateKey, publicKey, passphrase, username });
+        dispatch(setKeypairState(keyData));
 
-        setOpen({ open: false });
+        closeModal();
         toast.success('Keypair successfully loaded.');
     };
 
     // load existing keypair
     const load = ()=>{
-        setParentKeys({ privateKey: keypair.privateKey, publicKey: keypair.publicKey, passphrase: keypair.passphrase, username: keypair.username });
+        dispatch(setKeypairState(keypair));
 
-        setOpen({ open: false });
+        closeModal();
         toast.success('Keypair successfully loaded.');
     };
 
@@ -74,10 +73,6 @@ const Modal = ({ open, setOpen, generateNew, setParentKeys, toast })=>{
             passphrase: result
         }));
     }
-
-    const closeModal = ()=>{
-        setOpen({ open: false });
-    };
 
     return (
         <div className={styles.container} style={{
@@ -167,4 +162,10 @@ const Modal = ({ open, setOpen, generateNew, setParentKeys, toast })=>{
     )
 };
 
-export default Modal;
+const mapStateToProps = (state) => ({
+    open: state.modal.open,
+    generateNew: state.modal.type,
+    toast: state.toast
+});
+
+export default connect(mapStateToProps)(Modal);

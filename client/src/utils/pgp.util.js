@@ -39,7 +39,7 @@ const encryptMessage = async (publicKeyArmored, message)=>{
 
     const encrypted = await openpgp.encrypt({
         message: await openpgp.createMessage({ text: message }),
-        encryptionKeys: publicKey,
+        encryptionKeys: publicKey
     });
 
     return encrypted;
@@ -47,31 +47,32 @@ const encryptMessage = async (publicKeyArmored, message)=>{
 
 //decrypt message
 const decryptMessage = async (privateKeyArmored, passphrase, armoredMessage)=>{
-     // parse armored message
-    const message = await openpgp.readMessage({
-        armoredMessage: armoredMessage
-    });
+    try{
+        console.log(privateKeyArmored, passphrase, armoredMessage);
+        // parse armored message
+        const message = await openpgp.readMessage({
+            armoredMessage: armoredMessage
+        });
+        console.log(message);
+        // parse private key
+        const privateKey = await openpgp.decryptKey({
+            privateKey: await openpgp.readPrivateKey({ armoredKey: privateKeyArmored }),
+            passphrase
+        });
+        console.log(privateKey);
+        // decrypt message
+        const { data: decrypted, signatures } = await openpgp.decrypt({
+            message,
+            decryptionKeys: [privateKey]
+        });
+        console.log(decrypted);
+        console.log(signatures);
 
-    // parse private key
-    const privateKey = await openpgp.decryptKey({
-        privateKey: await openpgp.readPrivateKey({ armoredKey: privateKeyArmored }),
-        passphrase
-    });
-
-    // decrypt message
-    const decrypted = await openpgp.decrypt({
-        message,
-        decryptionKeys: privateKey
-    });
-
-    //join message parts into a single string
-    const chunks = [];
-    for await (const chunk of decrypted.data) {
-        chunks.push(chunk);
+        return decrypted;
+    } catch(e){
+        console.log(e)
+        return '[!] Failed to decrypt message.';
     }
-    const plaintext = chunks.join('');
-
-    return plaintext;
 };
 
 export {
