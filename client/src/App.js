@@ -23,6 +23,7 @@ const App = ({ socket, modal, contactModal, keypair, chat })=>{
   const [selectedChat, setSelectedChat] = useState(null);
   const [chatMessage, setChatMessage] = useState('');
   const chatMessageInput = useRef();
+  const chatMessageContainer = useRef();
 
   const sendMessage = async ()=>{
     await dispatch(setMessageState({ username: selectedChat, message: chatMessage }));
@@ -33,9 +34,24 @@ const App = ({ socket, modal, contactModal, keypair, chat })=>{
   //listen for enter event to send message
   useEffect(()=>{
     //when socket receives a new message
-    socket.on('message', (message)=>{
-      dispatch(receivedMessage(message));
+    socket.on('connect', ()=>{
+      toast.success('Connected to server.');
     });
+    socket.on('message', (message)=>{
+      console.log('message received');
+      dispatch(receivedMessage(message));
+      
+    });
+
+    window.onbeforeunload = function() {
+      return "Are you sure you want to reload? All your messages will be lost.";
+    };
+  }, []);
+
+  useEffect(()=>{
+    if(keypair && keypair.publicKey){
+      setShowChat(true);
+    }
 
     //listen for enter to send message
     if(chatMessageInput?.current){
@@ -45,13 +61,11 @@ const App = ({ socket, modal, contactModal, keypair, chat })=>{
         }
       });
     }
-  }, []);
 
-  useEffect(()=>{
-    if(keypair && keypair.publicKey){
-      setShowChat(true);
+    if(chatMessageContainer?.current){
+      chatMessageContainer.current.scrollTop = chatMessageContainer.current.scrollHeight;
     }
-  }, [keypair]);
+  }, [keypair, selectedChat, chatMessage]);
 
   return (
     <div className={styles.container}>

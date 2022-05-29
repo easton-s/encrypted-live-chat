@@ -65,10 +65,11 @@ export const addContact = (contact) => async (dispatch, getState) => {
 export const sendMessage = ({ username, message }) => async (dispatch, getState) => {
     if(!message || message.length < 1) return;
 
-    const {socket, toast, chat} = getState();
+    const {socket, toast, chat, keypair} = getState();
 
     let contact = chat[username];
     let encryptedMessage = await encryptMessage(contact.publicKey, message);
+    let localEncrypedMessage = await encryptMessage(keypair.publicKey, message);
 
     socket.emit('send_message', { recievingPublicKey: contact.publicKey, message: encryptedMessage }, (err, data)=>{
         if(err){
@@ -76,29 +77,25 @@ export const sendMessage = ({ username, message }) => async (dispatch, getState)
             return toast.error('Error sending message.');
         }
 
-        return dispatch({ type: "ADD_MESSAGE", payload: { username, message: { ...data, mine: true }}});
+        return dispatch({ type: "ADD_MESSAGE", payload: { username, message: { ...data, message: localEncrypedMessage, mine: true }}});
     });
 };
 
 export const receivedMessage = (message) => async (dispatch, getState)=>{
     const { chat } = getState();
-
     //find the username of the sender based on publickey
-    let senderUsername = Object.keys(chat).find(x => JSON.stringify(chat[x].from) === message.publicKey);
-    console.log(senderUsername);
+    let senderUsername = Object.keys(chat).find(x => chat[x].publicKey === message.from);
+
     //if the receiver doesnt have the sender in their contact list, add them
     if(!senderUsername || senderUsername === undefined){
-        senderUsername = 'NEW CONTACT';
+        let amountOfNewContacts = Object.keys(chat).filter(x => x.includes('NEW CONTACT'))?.length || 0;
+        senderUsername = `NEW CONTACT #${amountOfNewContacts + 1}`;
 
         await dispatch({ type: "ADD_CONTACT", payload: { 
             username: senderUsername,
-            publicKey: message.publicKey,
+            publicKey: message.from,
         }});
     }
-
-    //const { chat: chat2 } = getState();
-
-    console.log(senderUsername);
 
     return dispatch({ type: "ADD_MESSAGE", payload: { 
         username: senderUsername, 

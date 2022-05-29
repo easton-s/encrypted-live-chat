@@ -18,9 +18,18 @@ const ChatMessage = ({ username, message, keypair })=>{
     }, []);
 
     return (
-        <div className={styles.chatMessage}>
-            <span>{message.mine ? 'Me' : username}</span>
-            <p>{plaintextMessage}</p>
+        <div className={styles.container} style={{
+            alignItems: message.mine ? 'flex-end' : 'flex-start',
+        }}>
+            <div className={styles.chatMessage} style={{
+                alignItems: message.mine ? 'flex-end' : 'flex-start',
+            }}>
+                <span>{message.mine ? 'Me' : username}</span>
+                <p style={{
+                    backgroundColor: message.mine ? '#0070f3' : '#7e7e7e',
+                }}>{plaintextMessage}</p>
+                <span>{new Date(message.timestamp).toLocaleDateString() + ' ' + new Date(message.timestamp).toLocaleTimeString()}</span>
+            </div>
         </div>
     )
 };

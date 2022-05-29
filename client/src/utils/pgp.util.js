@@ -23,8 +23,8 @@ const generateKeypair = async ({username, passphrase, save})=>{
         passphrase: passphrase
     });
 
-    if(save){ //save keypair to browser localstorage if applicable
-        localStorage.setItem('keypair', JSON.stringify({ privateKey, publicKey, passphrase, username }));
+    if(save){ //save keypair to browser localstorage if applicable, never save passphrase
+        localStorage.setItem('keypair', JSON.stringify({ privateKey, publicKey, passphrase: '', username }));
     }
 
     downloadKeyData(username, passphrase, publicKey, privateKey);
@@ -48,29 +48,24 @@ const encryptMessage = async (publicKeyArmored, message)=>{
 //decrypt message
 const decryptMessage = async (privateKeyArmored, passphrase, armoredMessage)=>{
     try{
-        console.log(privateKeyArmored, passphrase, armoredMessage);
         // parse armored message
         const message = await openpgp.readMessage({
             armoredMessage: armoredMessage
         });
-        console.log(message);
         // parse private key
         const privateKey = await openpgp.decryptKey({
             privateKey: await openpgp.readPrivateKey({ armoredKey: privateKeyArmored }),
             passphrase
         });
-        console.log(privateKey);
         // decrypt message
         const { data: decrypted, signatures } = await openpgp.decrypt({
             message,
             decryptionKeys: [privateKey]
         });
-        console.log(decrypted);
-        console.log(signatures);
 
         return decrypted;
     } catch(e){
-        console.log(e)
+        console.log(e);
         return '[!] Failed to decrypt message.';
     }
 };
