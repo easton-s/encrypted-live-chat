@@ -89,10 +89,6 @@ const App = ({ socket, modal, contactModal, keypair, chat })=>{
   return (
     <div className={styles.container}>
       <main className={styles.main}>
-        <h1 className={styles.title}>
-          Anonymous Live Chat
-        </h1>
-
         {
           showChat ? (
             <>
@@ -175,16 +171,21 @@ const App = ({ socket, modal, contactModal, keypair, chat })=>{
             </div>
             </>
           ) : (
-          <div className={styles.grid}>
-            <div className={styles.card} onClick={()=>openModal(true)}>
-              <h2>Generate New Keypair &rarr;</h2>
-            </div>
+            <>
+            <h1 className={styles.title}>
+              Anonymous Live Chat
+            </h1>
+            <div className={styles.grid}>
+              <div className={styles.card} onClick={()=>openModal(true)}>
+                <h2>Generate New Keypair &rarr;</h2>
+              </div>
 
-            <div className={styles.card} onClick={()=>openModal()}>
-              <h2>Load Existing Keypair &rarr;</h2>
-            </div>
+              <div className={styles.card} onClick={()=>openModal()}>
+                <h2>Load Existing Keypair &rarr;</h2>
+              </div>
 
-          </div>
+            </div>
+            </>
           )
         }
       </main>

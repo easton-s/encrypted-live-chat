@@ -57,7 +57,7 @@ const Modal = ({ open, generateNew, toast })=>{
     };
 
     const generatePassphrase = ()=>{
-        let result = '' ;
+        let result = '';
         const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789%^&*()_+-=[]{}|;:,./<>?~1234567890';
         let charactersLength = characters.length;
         for (let i = 0; i < 24; i++ ) {

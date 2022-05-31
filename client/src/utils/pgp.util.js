@@ -58,7 +58,7 @@ const decryptMessage = async (privateKeyArmored, passphrase, armoredMessage)=>{
             passphrase
         });
         // decrypt message
-        const { data: decrypted, signatures } = await openpgp.decrypt({
+        const { data: decrypted } = await openpgp.decrypt({
             message,
             decryptionKeys: [privateKey]
         });
