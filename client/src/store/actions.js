@@ -1,4 +1,4 @@
-import {encryptMessage} from '../utils/pgp.util';
+import {encryptMessage, decryptMessage} from '../utils/pgp.util';
 
 export const setSocket = (socket) => (dispatch) => {
     return dispatch({
@@ -129,4 +129,52 @@ export const receivedMessage = (message) => async (dispatch, getState)=>{
         username: senderUsername, 
         message: message
     }});
+};
+
+export const txtChatExport = (username) => async (dispatch, getState)=>{
+    const { chat, keypair } = getState();
+
+    let contact = chat[username];
+
+    let txtToExport = '';
+
+    for(const message of contact.messages){
+        let decryptedMessage = await decryptMessage(keypair.privateKey, keypair.passphrase, message.message);
+
+        let formattedDate = `${new Date(message.timestamp).toLocaleDateString()} ${new Date(message.timestamp).toLocaleTimeString()}`;
+
+        txtToExport += `${message.mine ? 'Me' : username}\n${decryptedMessage}\n${formattedDate}\n\n`;
+    }
+
+    const element = document.createElement("a");
+
+    const file = new Blob([txtToExport], {type: 'text/plain'});
+    element.href = URL.createObjectURL(file);
+
+    element.download = `${username}_CHAT_EXPORT_${Date.now()}.txt`;
+    document.body.appendChild(element);
+
+    element.click();
+};
+
+export const dataImport = (data) => async (dispatch, getState)=>{
+    const { toast } = getState();
+
+    try{
+        let parsedData = JSON.parse(data);
+
+        for(const key of Object.keys(parsedData)){
+            if(!parsedData[key].publicKey || !parsedData[key].messages){
+                delete parsedData[key];
+            }
+        }
+
+        if(Object.keys(parsedData).length < 1){
+            return toast.error('No valid data found.');
+        }
+
+        return dispatch({ type: "SET_CHAT", payload: parsedData });
+    } catch(err){
+        toast.error('Invalid JSON data.');
+    }
 };

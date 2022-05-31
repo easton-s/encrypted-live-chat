@@ -36,6 +36,12 @@ const reducer = (state = STATE_TEMPLATE, action)=>{
                 keypair: action.payload
             }
 
+        case 'SET_CHAT':
+            return {
+                ...state,
+                chat: action.payload
+            }
+
         case 'ADD_CONTACT':
             return {
                 ...state,

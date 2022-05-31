@@ -56,13 +56,45 @@
   line-height: 1.5;
 }
 
+.settingsContainer{
+  margin-top: 20px;
+  margin-bottom: 10px;
+  max-width: 1300px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  border: 2px solid #7e7e7e;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.settingsContainer button, .settingsContainer label{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #0070f3;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 15px;
+  cursor: pointer;
+  margin-right: 10px;
+}
+
+.settingsContainer button img, .settingsContainer label img{
+  margin-right: 5px;
+}
+
+.settingsContainer button span, .settingsContainer label span{
+  color: #fff;
+  font-size: 0.85rem;
+}
+
 .chat{
   width: 100%;
-  height: 100%;
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  margin-top: 20px;
   flex-grow: 1;
 }
 
@@ -177,6 +209,32 @@
   flex-grow: 1;
 }
 
+.chatHeaderButtons{
+  display: flex;
+  align-items: center;
+}
+
+.chatHeaderButtons button{
+  width: 40px;
+  height: 40px;
+  background-color: #0070f3;
+  border: none;
+  color: #fff;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chatHeaderButtons button:first-child{
+  margin-right: 5px;
+}
+
+.chatHeaderButtons button span{
+  font-size: 1rem;
+}
+
 .chatWelcome{
   flex-grow: 1;
   display: flex;
@@ -237,6 +295,9 @@
     width: 100%;
     flex-direction: column;
     flex-grow: 1;
+  }
+  .settingsContainer{
+    width: 90%;
   }
   .chat{
     flex-direction: column;

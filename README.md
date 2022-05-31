@@ -7,5 +7,3 @@ Everything is stored on the client side, when refreshing everything is deleted.
  - settings menu
  - ease of use features
     - removing contacts
- - mobile optimization
- - export chat and contacts as JSON, import later

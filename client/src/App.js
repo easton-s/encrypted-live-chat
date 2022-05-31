@@ -2,7 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import { useDispatch, connect } from 'react-redux';
 
-import { setModal, setContactModal, sendMessage as setMessageState, receivedMessage } from './store/actions';
+import { setModal, setContactModal, sendMessage as setMessageState, receivedMessage, txtChatExport, dataImport } from './store/actions';
 
 import Modal from './Components/Modal';
 import AddContact from './Components/AddContact';
@@ -10,6 +10,9 @@ import ChatMessage from './Components/ChatMessage';
 
 import styles from './styles/Home.module.css';
 import 'react-toastify/dist/ReactToastify.css';
+
+import DownloadSolid from './assets/download-solid.svg';
+import ImportSolid from './assets/import-solid.svg';
 
 const App = ({ socket, modal, contactModal, keypair, chat })=>{
   const dispatch = useDispatch();
@@ -55,6 +58,34 @@ const App = ({ socket, modal, contactModal, keypair, chat })=>{
     }
   }, [keypair]);
 
+  const exportChat = ()=>{
+    dispatch(txtChatExport(selectedChat));
+  };
+
+  const exportData = ()=>{
+    let dataToExport = JSON.stringify(chat);
+
+    const element = document.createElement("a");
+
+    const file = new Blob([dataToExport], {type: 'text/json'});
+    element.href = URL.createObjectURL(file);
+
+    element.download = `CHAT_EXPORT_${Date.now()}.json`;
+    document.body.appendChild(element);
+
+    element.click();
+  };
+
+  const importData = (e)=>{
+    const fileReader = new FileReader();
+    fileReader.readAsText(e.target.files[0], "UTF-8");
+
+    fileReader.onload = e => {
+      console.log("e.target.result", e.target.result);
+      dispatch(dataImport(e.target.result));
+    };
+  };
+
   return (
     <div className={styles.container}>
       <main className={styles.main}>
@@ -64,6 +95,19 @@ const App = ({ socket, modal, contactModal, keypair, chat })=>{
 
         {
           showChat ? (
+            <>
+            <div className={styles.settingsContainer}>
+              <label htmlFor="file-upload">
+                <img src={ImportSolid} alt="Import Data" />
+                <span>Import Data</span>
+              </label>
+              <input type="file" accept=".json" id="file-upload" style={{display: 'none'}} onChange={importData}/>
+
+              <button onClick={exportData}>
+                <img src={DownloadSolid} alt="Export Data" />
+                <span>Export Data</span>
+              </button>
+            </div>
             <div className={styles.chat}>
               <div className={styles.chatContainer}>
                 <div className={styles.chatSidebar}>
@@ -90,6 +134,18 @@ const App = ({ socket, modal, contactModal, keypair, chat })=>{
                 <div className={styles.chatBody}>
                   <div className={styles.chatHeader}>
                     <h3>{selectedChat ? selectedChat : 'Select a contact'}</h3>
+                    {
+                      selectedChat ? (
+                        <div className={styles.chatHeaderButtons}>
+                          <button onClick={exportChat}>
+                            <img src={DownloadSolid} alt="Export Chat as TXT" />
+                          </button>
+                          <button onClick={()=>setSelectedChat(null)}>
+                            <span>&#10005;</span>
+                          </button>
+                        </div>
+                      ) : ''
+                    }
                   </div>
                   <div className={styles.messageContainer}>
                     {
@@ -117,6 +173,7 @@ const App = ({ socket, modal, contactModal, keypair, chat })=>{
                 </div>
               </div>
             </div>
+            </>
           ) : (
           <div className={styles.grid}>
             <div className={styles.card} onClick={()=>openModal(true)}>
