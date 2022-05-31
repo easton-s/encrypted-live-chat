@@ -15,21 +15,21 @@ const downloadKeyData = (username, passphrase, publicKeyArmored, privateKeyArmor
 };
 
 //generate pgp keypair
-const generateKeypair = async ({username, passphrase, save})=>{
+const generateKeypair = async ({passphrase, save})=>{
     const { privateKey, publicKey } = await openpgp.generateKey({
         type: 'rsa',
         rsaBits: 4096,
-        userIDs: [{ userID: username }],
+        userIDs: [{ userID: 'Anonymous' }],
         passphrase: passphrase
     });
 
     if(save){ //save keypair to browser localstorage if applicable, never save passphrase
-        localStorage.setItem('keypair', JSON.stringify({ privateKey, publicKey, passphrase: '', username }));
+        localStorage.setItem('keypair', JSON.stringify({ privateKey, publicKey, passphrase: '' }));
     }
 
-    downloadKeyData(username, passphrase, publicKey, privateKey);
+    downloadKeyData(passphrase, publicKey, privateKey);
 
-    return { privateKey, publicKey, passphrase, username };
+    return { privateKey, publicKey, passphrase };
 };
 
 //encrypt message

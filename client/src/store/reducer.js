@@ -7,7 +7,7 @@ const STATE_TEMPLATE = {
     keypair: null,
     chat: {},
     modal: { open: false, type: false },
-    contactModal: { open: false },
+    contactModal: { open: false, edit: false, oldDetails: {} },
 };
 
 const reducer = (state = STATE_TEMPLATE, action)=>{
@@ -46,6 +46,21 @@ const reducer = (state = STATE_TEMPLATE, action)=>{
                         messages: [],
                     }
                 },
+            }
+
+        case 'EDIT_CONTACT':
+            let newChat = {
+                ...state.chat,
+                [action.payload.username]: {
+                    ...state.chat[action.payload.oldUsername],
+                    publicKey: action.payload.publicKey,
+                }
+            };
+            delete newChat[action.payload.oldUsername];
+
+            return {
+                ...state,
+                chat: newChat,
             }
 
         case 'ADD_MESSAGE':

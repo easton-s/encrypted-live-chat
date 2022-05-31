@@ -39,27 +39,55 @@ export const setContactModal = (state) => (dispatch) => {
     });
 };
 
-export const addContact = (contact) => async (dispatch, getState) => {
-    const {socket, toast} = getState();
+export const addContact = ({ username, publicKey }) => async (dispatch, getState) => {
+    const {socket, toast, chat, keypair} = getState();
 
-    if(!contact.publicKey || contact.publicKey.length < 1){
+    if(!publicKey || publicKey.length < 1){
         return toast.error('Please enter a public key.');
     }
-    if(!contact.username || contact.username.length < 1){
+    if(!username || username.length < 1){
         return toast.error('Please enter a username.');
     }
+    if(chat[username]){
+        return toast.error('You have already added a contact with this username.');
+    }
     
-    let encryptedMessage = await encryptMessage(contact.publicKey, 'Connecting chat...');
+    let encryptedMessage = await encryptMessage(publicKey, '==ADD_CONTACT==');
+    let localEncrypedMessage = await encryptMessage(keypair.publicKey,  '==ADD_CONTACT==');
 
-    socket.emit('send_message', { recievingPublicKey: contact.publicKey, message: encryptedMessage }, (err, data)=>{
+    socket.emit('send_message', { recievingPublicKey: publicKey, message: encryptedMessage }, async (err, data)=>{
         if(err){
             if(err === 4) toast.error('User is not connected to the server.');
             return;
         }
         toast.success('Contact successfully added.');
 
-        return dispatch({ type: "ADD_CONTACT", payload: contact });
+        await dispatch({ type: "ADD_CONTACT", payload: { username, publicKey } });
+
+        return dispatch({ type: "ADD_MESSAGE", payload: { 
+            username: username, 
+            message: {...data, message: localEncrypedMessage}
+        }});
     });
+};
+
+export const editContact = ({ username, publicKey, oldUsername, oldPublicKey }) => async (dispatch, getState) => {
+    const {toast, chat} = getState();
+
+    if(!publicKey || publicKey.length < 1){
+        return toast.error('Please enter a public key.');
+    }
+    if(!username || username.length < 1){
+        return toast.error('Please enter a username.');
+    }
+    if(username === oldUsername && publicKey === oldPublicKey){
+        return;
+    }
+    if(chat[username]){
+        return toast.error('You have already added a contact with this username.');
+    }
+
+    return dispatch({ type: "EDIT_CONTACT", payload: { username, publicKey, oldUsername, oldPublicKey } });
 };
 
 export const sendMessage = ({ username, message }) => async (dispatch, getState) => {

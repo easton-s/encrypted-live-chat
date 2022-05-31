@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, connect } from 'react-redux';
 
-import { setContactModal, addContact as setContactState } from '../store/actions';
+import { setContactModal, addContact as setContactState, editContact } from '../store/actions';
 
 import styles from '../styles/Modal.module.css';
 
-const AddContact = ({ open })=>{
+const AddContact = ({ open, edit, oldDetails })=>{
     const dispatch = useDispatch();
 
     const [openModal, setOpenModal] = useState(open);
@@ -13,6 +13,12 @@ const AddContact = ({ open })=>{
     useEffect(()=>setOpenModal(open), [open]);
 
     const [contact, setContact] = useState({ username: '', publicKey: '' });
+
+    useEffect(()=>{
+        if(edit){
+            setContact({ username: oldDetails.username, publicKey: oldDetails.publicKey, oldUsername: oldDetails.username, oldPublicKey: oldDetails.publicKey });
+        }
+    }, [edit, oldDetails]);
 
     const closeModal = ()=>{
         dispatch(setContactModal({ open: false }));
@@ -25,13 +31,19 @@ const AddContact = ({ open })=>{
         closeModal();
     };
 
+    const saveContact = async ()=>{
+        await dispatch(editContact(contact));
+
+        closeModal();
+    };
+
     return (
         <div className={styles.container} style={{
             display: openModal ? 'block' : 'none'
         }}>
             <div className={styles.modal} style={{ width: '500px' }}>
                 <div className={styles.modalHeader}>
-                    <h1>Add New Contact</h1>
+                    <h1>{edit ? 'Edit Contact' : 'Add New Contact'}</h1>
                     <button onClick={closeModal}>X</button>
                 </div>
                 <div className={styles.modalBody}>
@@ -52,8 +64,14 @@ const AddContact = ({ open })=>{
 
                             <input type="text" value={contact.username || ''} onChange={e => setContact(old => ({ ...old, username: e.target.value }))}/>
                         </div>
-
-                        <button className={styles.button} onClick={()=>addContact()}>Add Contact</button>
+                        {
+                            edit ? (
+                                <button className={styles.button} onClick={()=>saveContact()}>Save Contact</button>
+                            ) : (
+                                <button className={styles.button} onClick={()=>addContact()}>Add Contact</button>
+                            )
+                        }
+                        
                     </div>
                 </div>
             </div>
@@ -63,8 +81,10 @@ const AddContact = ({ open })=>{
     );
 };
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
     open: state.contactModal.open,
+    edit: state.contactModal.edit,
+    oldDetails: state.contactModal.oldDetails,
 });
 
 export default connect(mapStateToProps)(AddContact);

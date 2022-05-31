@@ -11,7 +11,7 @@ const Modal = ({ open, generateNew, toast })=>{
 
     const [openModal, setOpenModal] = useState(open);
 
-    const [keypair, setKeypair] = useState({ publicKey: null, privateKey: null, passphrase: null, username: null, save: false });
+    const [keypair, setKeypair] = useState({ publicKey: null, privateKey: null, passphrase: null, save: false });
 
     useEffect(()=>{
         setOpenModal(open);
@@ -27,7 +27,6 @@ const Modal = ({ open, generateNew, toast })=>{
 
     const [generateForm, setGenerateForm] = useState({
         passphrase: '',
-        username: '',
         save: false,
     });
 
@@ -39,9 +38,6 @@ const Modal = ({ open, generateNew, toast })=>{
     const generate = async ()=>{
         if(!generateForm.passphrase || generateForm.passphrase.length < 1){
             return toast.error('Please enter a passphrase.');
-        }
-        if(!generateForm.username || generateForm.username.length < 1){
-            return toast.error('Please enter a username.');
         }
 
         let keyData = await generateKeypair(generateForm);
@@ -98,15 +94,7 @@ const Modal = ({ open, generateNew, toast })=>{
                                     <input type="text" value={generateForm.passphrase || ''} onChange={e => setGenerateForm(old => ({ ...old, passphrase: e.target.value }))}/>
                                 </div>
 
-                                <div className={styles.fieldContainer}>
-                                    <div className={styles.fieldLabels}>
-                                        <h3>Username</h3>
-                                    </div>
-
-                                    <input type="text" value={generateForm.username || ''} onChange={e => setGenerateForm(old => ({ ...old, username: e.target.value }))}/>
-                                </div>
-
-                                <label>Save to browser LocalStorage?</label>
+                                <label>Save to browser LocalStorage? <small style={{fontSize: '0.7rem'}}>(Passphrase will not be saved.)</small></label>
                                 <input className={styles.checkBox} type="checkbox" checked={generateForm.save} onChange={e => setGenerateForm(old => ({ ...old, save: !generateForm.save }))}/>
 
                                 <button className={styles.button} onClick={generate}>Generate Keypair</button>
@@ -133,21 +121,13 @@ const Modal = ({ open, generateNew, toast })=>{
                             <div className={styles.inputContainer}>
                                 <div className={styles.fieldContainer}>
                                     <div className={styles.fieldLabels}>
-                                        <h3>Username</h3>
-                                    </div>
-
-                                    <input type="text" value={keypair.username || ''} onChange={e => setKeypair(old => ({ ...old, username: e.target.value }))}/>
-                                </div>
-
-                                <div className={styles.fieldContainer}>
-                                    <div className={styles.fieldLabels}>
                                         <h3>Private Key Passphrase</h3>
                                     </div>
 
                                     <input type="text" value={keypair.passphrase || ''} onChange={e => setKeypair(old => ({ ...old, passphrase: e.target.value }))}/>
                                 </div>
 
-                                <label>Save to browser LocalStorage?</label>
+                                <label>Save to browser LocalStorage? <small style={{fontSize: '0.7rem'}}>(Passphrase will not be saved.)</small></label>
                                 <input className={styles.checkBox} type="checkbox" checked={keypair.save} onChange={e => setKeypair(old => ({ ...old, save: !keypair.save }))}/>
 
                                 <button className={styles.button} onClick={load}>Load</button>

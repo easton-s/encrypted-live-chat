@@ -16,14 +16,16 @@ const App = ({ socket, modal, contactModal, keypair, chat })=>{
 
   //authentication modal 
   const openModal = type => dispatch(setModal({ open: true, type: type }));
+  //add contact modal
+  const openAddContactModal = ()=> dispatch(setContactModal({ open: true }));
   //contact modal
-  const openContactModal = ()=> dispatch(setContactModal({ open: true }));
+  const openContactModal = (username, publicKey)=> dispatch(setContactModal({ open: true, edit: true, oldDetails: { username, publicKey} }));
 
   const [showChat, setShowChat] = useState(false);
   const [selectedChat, setSelectedChat] = useState(null);
   const [chatMessage, setChatMessage] = useState('');
   const chatMessageInput = useRef();
-  const chatMessageContainer = useRef();
+  const chatMessageBottom = useRef();
 
   const sendMessage = async ()=>{
     await dispatch(setMessageState({ username: selectedChat, message: chatMessage }));
@@ -38,34 +40,20 @@ const App = ({ socket, modal, contactModal, keypair, chat })=>{
       toast.success('Connected to server.');
     });
     socket.on('message', (message)=>{
-      console.log('message received');
       dispatch(receivedMessage(message));
-      
+      chatMessageBottom.current.scrollIntoView({ behavior: 'smooth' });
     });
 
-    window.onbeforeunload = function() {
-      return "Are you sure you want to reload? All your messages will be lost.";
-    };
+    window.onbeforeunload = () => "Are you sure you want to reload? All your messages will be lost.";
+
+    window.onload = () => chatMessageBottom.current.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
   useEffect(()=>{
     if(keypair && keypair.publicKey){
       setShowChat(true);
     }
-
-    //listen for enter to send message
-    if(chatMessageInput?.current){
-      chatMessageInput.current.addEventListener('keypress', (e)=>{
-        if (e.key === 'Enter') {
-          sendMessage();
-        }
-      });
-    }
-
-    if(chatMessageContainer?.current){
-      chatMessageContainer.current.scrollTop = chatMessageContainer.current.scrollHeight;
-    }
-  }, [keypair, selectedChat, chatMessage]);
+  }, [keypair]);
 
   return (
     <div className={styles.container}>
@@ -81,7 +69,7 @@ const App = ({ socket, modal, contactModal, keypair, chat })=>{
                 <div className={styles.chatSidebar}>
                   <div className={styles.sidebarHeader}>
                     <h3>Contacts</h3>
-                    <button onClick={openContactModal}>+</button>
+                    <button onClick={openAddContactModal}>+</button>
                   </div>
                   <div className={styles.sidebarContacts}>
                     {
@@ -89,7 +77,7 @@ const App = ({ socket, modal, contactModal, keypair, chat })=>{
                         Object.keys(chat).map((key, index) => (
                           <div className={styles.sidebarContact} key={index} onClick={()=>setSelectedChat(key)}>
                             <span>{key.length > 22 ? key.slice(0, 21) + '...' : key}</span>
-                            <small>&#9432;</small>
+                            <small onClick={()=>openContactModal(key, chat[key].publicKey)}>&#9432;</small>
                           </div>
                         ))
                       ) : (
@@ -115,12 +103,14 @@ const App = ({ socket, modal, contactModal, keypair, chat })=>{
                         </div>
                       )
                     }
+                    <div ref={chatMessageBottom}/>
                   </div>
                   <div className={styles.chatFooter} style={{
                     display: selectedChat ? 'flex' : 'none'
                   }}>
                     <input type="text" ref={chatMessageInput} placeholder="Type a message..."
                       value={chatMessage} onChange={(e)=>setChatMessage(e.target.value)}
+                      onKeyDown={(e)=> e.key === 'Enter' ? sendMessage() : null}
                     />
                     <button onClick={sendMessage}>&rarr;</button>
                   </div>
@@ -148,7 +138,7 @@ const App = ({ socket, modal, contactModal, keypair, chat })=>{
       <ToastContainer
         position="bottom-right"
         theme="dark"
-        autoClose={3000}
+        autoClose={2000}
       />
     </div>
   )

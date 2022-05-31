@@ -21,15 +21,24 @@ const ChatMessage = ({ username, message, keypair })=>{
         <div className={styles.container} style={{
             alignItems: message.mine ? 'flex-end' : 'flex-start',
         }}>
-            <div className={styles.chatMessage} style={{
-                alignItems: message.mine ? 'flex-end' : 'flex-start',
-            }}>
-                <span>{message.mine ? 'Me' : username}</span>
-                <p style={{
-                    backgroundColor: message.mine ? '#0070f3' : '#7e7e7e',
-                }}>{plaintextMessage}</p>
-                <span>{new Date(message.timestamp).toLocaleDateString() + ' ' + new Date(message.timestamp).toLocaleTimeString()}</span>
-            </div>
+            {
+                plaintextMessage === '==ADD_CONTACT==' ?
+                (
+                    <div className={styles.connectingMessage}>
+                        <span>You are now connected with {username}</span>
+                    </div>
+                ) : (
+                    <div className={styles.chatMessage} style={{
+                        alignItems: message.mine ? 'flex-end' : 'flex-start',
+                    }}>
+                        <span>{message.mine ? 'Me' : username}</span>
+                        <p style={{
+                            backgroundColor: message.mine ? '#0070f3' : '#7e7e7e',
+                        }}>{plaintextMessage}</p>
+                        <span>{new Date(message.timestamp).toLocaleDateString() + ' ' + new Date(message.timestamp).toLocaleTimeString()}</span>
+                    </div>
+                )
+            }
         </div>
     )
 };

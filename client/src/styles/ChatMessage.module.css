@@ -29,3 +29,16 @@
     border-radius: 10px;
     margin: 0;
 }
+
+.connectingMessage{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.connectingMessage span{
+    font-size: 0.8rem;
+    color: #7e7e7e;
+    margin-top: 5px;
+}
