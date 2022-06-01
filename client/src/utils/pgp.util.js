@@ -1,9 +1,9 @@
 import * as openpgp from 'openpgp';
 
-const downloadKeyData = (username, passphrase, publicKeyArmored, privateKeyArmored)=>{
+const downloadKeyData = (passphrase, publicKeyArmored, privateKeyArmored)=>{
     const element = document.createElement("a");
 
-    let dataToWrite = username + '\n\n' + passphrase + '\n\n' + publicKeyArmored + '\n' + privateKeyArmored;
+    let dataToWrite = `${passphrase}\n\n${publicKeyArmored}\n\n${privateKeyArmored}`;
 
     const file = new Blob([dataToWrite], {type: 'text/plain'});
     element.href = URL.createObjectURL(file);
@@ -18,7 +18,7 @@ const downloadKeyData = (username, passphrase, publicKeyArmored, privateKeyArmor
 const generateKeypair = async ({passphrase, save})=>{
     const { privateKey, publicKey } = await openpgp.generateKey({
         type: 'rsa',
-        rsaBits: 4096,
+        rsaBits: 2048,
         userIDs: [{ userID: 'Anonymous' }],
         passphrase: passphrase
     });
@@ -27,7 +27,7 @@ const generateKeypair = async ({passphrase, save})=>{
         localStorage.setItem('keypair', JSON.stringify({ privateKey, publicKey, passphrase: '' }));
     }
 
-    downloadKeyData(passphrase, publicKey, privateKey);
+    await downloadKeyData(passphrase, publicKey, privateKey);
 
     return { privateKey, publicKey, passphrase };
 };

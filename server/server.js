@@ -21,9 +21,14 @@ const io = require('socket.io')(server, {
 
 io.on('connection', socketRoutes);
 
-app.use(express.static(path.join(__dirname, '../app/build')));
+app.use(express.static(path.join(__dirname, '../client/build')));
 
 // Handles any requests that don't match the ones above
-app.get('*', (req,res) =>{
-    res.sendFile(path.join(__dirname, '../app/build/index.html'));
+app.get('*', (req, res) =>{
+    res.sendFile(path.join(__dirname, '../client/build/index.html'));
+});
+
+//error handler
+app.use((err, req, res) => {
+    res.status(500).json({ status: 500, message: err.message });
 });

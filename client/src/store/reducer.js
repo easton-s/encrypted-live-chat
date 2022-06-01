@@ -2,7 +2,7 @@ import { toast } from 'react-toastify';
 import io from 'socket.io-client';
 
 const STATE_TEMPLATE = {
-    socket: io('http://localhost:8080'),
+    socket: io(),
     toast: toast,
     keypair: null,
     chat: {},

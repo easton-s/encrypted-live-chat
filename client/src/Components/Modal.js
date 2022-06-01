@@ -35,17 +35,21 @@ const Modal = ({ open, generateNew, toast })=>{
     };
 
     //generate new PGP keypair
-    const generate = async ()=>{
+    const generate = ()=>{
         if(!generateForm.passphrase || generateForm.passphrase.length < 1){
             return toast.error('Please enter a passphrase.');
         }
+        //send message because generating can take a few seconds
+        toast.info('Generating keypair...');
+        //some reason toast.info wont execute until generateKeypair is finished even with await...
+        setTimeout(async ()=>{
+            let keyData = await generateKeypair(generateForm);
 
-        let keyData = await generateKeypair(generateForm);
-
-        dispatch(setKeypairState(keyData));
-
-        closeModal();
-        toast.success('Keypair successfully loaded.');
+            dispatch(setKeypairState(keyData));
+    
+            closeModal();
+            toast.success('Keypair successfully loaded.');
+        }, 10);
     };
 
     // load existing keypair
